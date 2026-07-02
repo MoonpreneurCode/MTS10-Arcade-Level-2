@@ -1,48 +1,239 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Arcade Level 2</title>
-  <meta name="description" content="One-click Copy page for sharing code." />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Copy Code</title>
+
   <style>
-    :root{
-      --bg: #f7fafc; --card:#ffffff; --text:#151923; --brand:#2563eb; --brand-2:#22c55e; --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; --rounded:16px;
+    * {
+      box-sizing: border-box;
     }
-    *{box-sizing:border-box}
-    body{margin:0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Arial; color:var(--text); background:#f7fbff}
-    .wrap{max-width: 840px; margin: 28px auto; padding: 12px}
-    .card{background:var(--card); border-radius:var(--rounded); box-shadow:0 8px 24px rgba(16,24,40,.06); padding:18px}
-    h1{margin:2px 0 12px; font-size: clamp(22px, 3vw, 30px)}
 
-    .tools{display:flex; gap:10px; margin: 8px 0 12px}
-    button{appearance:none; border:0; border-radius:999px; padding:10px 16px; font-weight:700; cursor:pointer; background:var(--brand); color:#fff; transition:transform .05s ease}
-    button:active{transform:translateY(1px)}
-    .copied{background:var(--brand-2)!important}
+    html,
+    body {
+      height: 100%;
+      overflow: hidden;
+    }
 
-    .codewrap{position:relative}
-    pre{margin:0; background:#0b1220; color:#e4ecff; border-radius:12px; padding:14px; line-height:1.4; font-family:var(--mono); font-size:14px; overflow:auto; max-height:240px}
-    code{font-family:var(--mono)}
+    body {
+      margin: 0;
+      font-family: "Trebuchet MS", Arial, sans-serif;
+      color: #172033;
+      background:
+        radial-gradient(circle at 12% 18%, rgba(255, 212, 96, 0.28), transparent 24%),
+        radial-gradient(circle at 88% 12%, rgba(87, 190, 255, 0.22), transparent 26%),
+        linear-gradient(135deg, #f7fbff 0%, #fff7df 48%, #eefcf3 100%);
+      padding: 24px 16px;
+    }
 
-    @media (prefers-color-scheme: dark){
-      body{background:#0b1220; color:#eef2ff}
-      .card{background:#0e1526; box-shadow:none}
-      pre{background:#050816; color:#dbe7ff}
+    .page-shell {
+      display: grid;
+      place-items: center;
+      height: 100%;
+    }
+
+    .code-container {
+      display: grid;
+      grid-template-rows: auto minmax(0, 1fr) auto;
+      width: min(980px, 100%);
+      height: min(950px, 100%);
+      background: rgba(255, 255, 255, 0.94);
+      border: 2px solid rgba(23, 32, 51, 0.08);
+      border-radius: 18px;
+      box-shadow: 0 18px 45px rgba(25, 39, 79, 0.16);
+      overflow: hidden;
+    }
+
+    .top-bar {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 18px;
+      align-items: center;
+      padding: 14px 22px;
+      background: linear-gradient(135deg, #155e75, #2f855a);
+      color: white;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(24px, 3.2vw, 34px);
+      line-height: 1.05;
+      letter-spacing: 0;
+    }
+
+    .badge {
+      display: inline-grid;
+      place-items: center;
+      min-width: 62px;
+      min-height: 62px;
+      border-radius: 50%;
+      background: #ffd166;
+      color: #172033;
+      border: 4px solid rgba(255, 255, 255, 0.78);
+      font-size: 26px;
+      font-weight: 800;
+      box-shadow: 0 10px 22px rgba(0, 0, 0, 0.18);
+    }
+
+    .example {
+      display: grid;
+      grid-template-rows: auto minmax(0, 1fr);
+      min-height: 0;
+      margin: 5px 18px -12px;
+      border: 1px solid #dce6ef;
+      border-radius: 14px;
+      overflow: hidden;
+      background: #fbfdff;
+    }   
+
+    .example-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 14px;
+      padding: 14px 16px;
+      background: #f0f7fb;
+      border-bottom: 1px solid #dce6ef;
+    }
+
+    .example-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+      font-size: 18px;
+      font-weight: 800;
+    }
+
+    button {
+      border: 0;
+      border-radius: 999px;
+      padding: 10px 18px;
+      min-height: 42px;
+      background: #2f855a;
+      color: white;
+      font-family: inherit;
+      font-size: 15px;
+      font-weight: 800;
+      cursor: pointer;
+      transition: transform 0.16s ease, box-shadow 0.16s ease, background 0.16s ease;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 15px rgba(23, 32, 51, 0.16);
+    }
+
+    button:active {
+      transform: translateY(0);
+      box-shadow: none;
+    }
+
+    button.copied {background: #118ab2;}
+
+    .code-scroll {
+      min-height: 0;
+      overflow: auto;
+      background: #1e1e1e;
+    }
+
+    pre {
+      margin: 0;
+      min-width: max-content;
+      padding: 18px;
+      color: #d4d4d4;
+      font-size: 15px;
+      line-height: 1.6;
+      tab-size: 4;
+    }
+
+    code {
+      font-family: Consolas, "Courier New", monospace;
+      white-space: pre;
+    }
+
+    .code-line {
+      display: grid;
+      grid-template-columns: 42px 1fr;
+      min-height: 24px;
+    }
+
+    .line-number {
+      padding-right: 14px;
+      color: #858585;
+      text-align: right;
+      user-select: none;
+    }
+
+    .line-code {
+      padding-left: 14px;
+      border-left: 1px solid rgba(255, 255, 255, 0.12);
+    }
+
+    .keyword {color: #569cd6;}
+    .function-name {color: #dcdcaa;}
+    .string {color: #ce9178;}
+    .number {color: #b5cea8;}
+    .comment {color: #6a9955;}
+    .builtin {color: #4ec9b0;}
+    .operator {color: #d4d4d4;}
+
+    .status {
+      min-height: 26px;
+      padding: 0 22px 8px;
+      color: #2f855a;
+      font-size: 15px;
+      font-weight: 800;
+      text-align: center;
+    }
+
+    @media (max-width: 640px) {
+      body {padding: 12px;}
+      .code-container {height: 100%;}
+      .top-bar {grid-template-columns: 1fr auto;padding: 14px 18px;}
+
+      .badge {
+        min-width: 52px;
+        min-height: 52px;
+        font-size: 22px;
+      }
+
+      .example {margin: 12px 14px 8px;}
+      .example-header {gap: 10px;}
+
+      pre {
+        font-size: 14px;
+      }
     }
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <div class="card">
-      <h1>Arcade Level 2</h1>
+  <main class="page-shell">
+    <section class="code-container">
+      <header class="top-bar">
+        <h1>Arcade Level 2</h1>
+        <div class="badge">&lt;/&gt;</div>
+      </header>
 
-      <div class="tools">
-        <button id="copyBtn" aria-label="Copy code">📋 Copy Code</button>
-      </div>
+      <article class="example">
+        <div class="example-header">
+          <div class="example-title">Example Code</div>
 
-      <div class="codewrap">
-        <pre id="code"><code>
-from machine import Pin
+          <button id="copyButton" type="button" onclick="copyCode()">Copy</button>
+        </div>
+
+        <div class="code-scroll">
+          <pre><code id="codeBlock"></code></pre>
+        </div>
+      </article>
+
+      <div class="status" id="statusMessage" aria-live="polite"></div>
+    </section>
+  </main>
+
+  <script>
+    const rawCode = `from machine import Pin
 from time import sleep
 
 red_led = Pin(10, Pin.OUT)
@@ -61,39 +252,136 @@ while True:
 
     green_led.value(1)
     sleep(1)
-    green_led.value(0)
-</code></pre>
-      </div>
-    </div>
-  </div>
+    green_led.value(0)`;
 
-  <script>
-    const copyBtn = document.getElementById('copyBtn');
-    const codeEl = document.getElementById('code');
+    const codeBlock = document.getElementById("codeBlock");
+    const copyButton = document.getElementById("copyButton");
+    const statusMessage = document.getElementById("statusMessage");
 
-    function getPlainCode(){
-      return codeEl.innerText.replace(/\n+$/,'');
+    function escapeHtml(text) {
+      return text
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;");
     }
 
-    async function copyCode(){
-      try{
-        await navigator.clipboard.writeText(getPlainCode());
-        copyBtn.classList.add('copied');
-        copyBtn.textContent = '✅ Copied!';
-        setTimeout(()=>{copyBtn.classList.remove('copied'); copyBtn.textContent='📋 Copy Code';}, 1800);
-      }catch(err){
-        const ta = document.createElement('textarea');
-        ta.value = getPlainCode();
-        document.body.appendChild(ta);
-        ta.select();
-        document.execCommand('copy');
-        document.body.removeChild(ta);
-        copyBtn.textContent = '✅ Copied!';
-        setTimeout(()=>{copyBtn.textContent='📋 Copy Code';}, 1800);
+    function wrapToken(className, text) {
+      return '<span class="' + className + '">' + escapeHtml(text) + '</span>';
+    }
+
+    function highlightLine(line) {
+      const keywords = ["from", "import", "while", "True", "False", "for", "in", "range", "if", "else", "elif", "def", "return", "class", "try", "except", "finally", "with", "as", "and", "or", "not"];
+      const builtins = ["print", "Pin", "time", "sleep", "value"];
+      let output = "";
+      let index = 0;
+
+      while (index < line.length) {
+        const char = line[index];
+
+        if (char === "#") {
+          output += wrapToken("comment", line.slice(index));
+          break;
+        }
+
+        if (char === '"' || char === "'") {
+          const quote = char;
+          let end = index + 1;
+
+          while (end < line.length) {
+            if (line[end] === "\\" && end + 1 < line.length) {
+              end += 2;
+              continue;
+            }
+
+            if (line[end] === quote) {
+              end += 1;
+              break;
+            }
+
+            end += 1;
+          }
+
+          output += wrapToken("string", line.slice(index, end));
+          index = end;
+          continue;
+        }
+
+        if (/\d/.test(char)) {
+          let end = index + 1;
+
+          while (end < line.length && /[\d.]/.test(line[end])) {
+            end += 1;
+          }
+
+          output += wrapToken("number", line.slice(index, end));
+          index = end;
+          continue;
+        }
+
+        if (/[A-Za-z_]/.test(char)) {
+          let end = index + 1;
+
+          while (end < line.length && /[A-Za-z0-9_]/.test(line[end])) {
+            end += 1;
+          }
+
+          const word = line.slice(index, end);
+
+          if (keywords.includes(word)) {
+            output += wrapToken("keyword", word);
+          } else if (builtins.includes(word)) {
+            output += wrapToken("builtin", word);
+          } else if (line.slice(end).trimStart().startsWith("(")) {
+            output += wrapToken("function-name", word);
+          } else {
+            output += escapeHtml(word);
+          }
+
+          index = end;
+          continue;
+        }
+
+        output += escapeHtml(char);
+        index += 1;
       }
+
+      return output;
     }
 
-    copyBtn.addEventListener('click', copyCode);
+    function highlightCode(code) {
+      return code.split("\n").map(function (line, index) {
+        return '<span class="code-line">' +
+          '<span class="line-number">' + (index + 1) + '</span>' +
+          '<span class="line-code">' + highlightLine(line) + '</span>' +
+          '</span>';
+      }).join("");
+    }
+
+    function showStatus(message) {
+      statusMessage.textContent = message;
+
+      window.clearTimeout(showStatus.timer);
+      showStatus.timer = window.setTimeout(function () {
+        statusMessage.textContent = "";
+      }, 2200);
+    }
+
+    function copyCode() {
+      navigator.clipboard.writeText(rawCode).then(function () {
+        copyButton.textContent = "Copied!";
+        copyButton.classList.add("copied");
+        showStatus("Code copied. You can paste it now.");
+
+        window.setTimeout(function () {
+          copyButton.textContent = "Copy";
+          copyButton.classList.remove("copied");
+        }, 1800);
+      }).catch(function () {
+        showStatus("Copy did not work. Please select the code and copy it.");
+      });
+    }
+
+    codeBlock.innerHTML = highlightCode(rawCode);
   </script>
 </body>
 </html>
